@@ -1,5 +1,5 @@
 {
-  "name": "tabular-data",
+  "name": "node-tabular-data",
   "version": "0.0.1",
   "description": "Tabular Data Helpers",
   "main": "index.js",
