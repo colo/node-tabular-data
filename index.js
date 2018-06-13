@@ -68,7 +68,7 @@ module.exports = {
 
 		return data
 	},
-	number_to_data: function(current, watcher){
+	number_to_tabular: function(current, watcher){
 		let data = []
 		Array.each(current, function(current){
 			let value = null
