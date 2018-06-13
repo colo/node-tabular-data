@@ -14,7 +14,7 @@ module.exports = {
 		return tabulars
 	},
 	
-	array_to_tabular = function (current, watcher){
+	array_to_tabular: function (current, watcher){
 		watcher = watcher || {value: ''}
 		watcher.value = watcher.value || ''
 
