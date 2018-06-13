@@ -84,6 +84,44 @@ module.exports = {
 		})
 
 		return data
+	},
+	
+	nested_array_to_tabular: function (current, watcher, name){
+
+		let index = (name.substring(name.indexOf('_') +1 , name.length - 1)) * 1
+		////////////////console.log('generic_data_watcher isNanN', name, val, index)
+
+		let val_current = []
+		Array.each(current, function(item){
+			// ////////////////console.log('CPU item', item)
+
+			let value = {}
+			Array.each(item.value, function(val, value_index){//each cpu
+
+				if(watcher.merge !== true && value_index == index){////no merging - compare indexes to add to this watcher
+					value[watcher.value] = Object.clone(val[watcher.value])
+				}
+				else{//merge all into a single stat
+					if(value_index == 0){
+						value[watcher.value] = Object.clone(val[watcher.value])
+					}
+					else{
+						Object.each(val[watcher.value], function(prop, key){
+							value[watcher.value][key] += prop
+						})
+
+					}
+				}
+
+			}.bind(this))
+
+			val_current.push({timestamp: item.timestamp, value: value})
+
+		}.bind(this))
+
+		// ////////////////console.log('CPU new current', val_current)
+
+		return val_current
 	}
 	
 	/**
