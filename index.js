@@ -1,4 +1,7 @@
 module.exports = {
+	/**
+	* from mixins/dashboard.vue
+	**/
 	get_dynamics: function (name, dynamics){
 		let tabulars = {}
 		Object.each(dynamics, function(dynamic){
@@ -13,7 +16,13 @@ module.exports = {
 
 		return tabulars
 	},
+	/**
+	* from mixins/dashboard.vue
+	**/
 	
+	/**
+	* from mixin/chart.vue
+	**/
 	array_to_tabular: function (current, watcher){
 		watcher = watcher || {value: ''}
 		watcher.value = watcher.value || ''
@@ -58,5 +67,26 @@ module.exports = {
 		})
 
 		return data
+	},
+	number_to_data: function(current, watcher){
+		let data = []
+		Array.each(current, function(current){
+			let value = null
+			if(watcher.value != ''){
+				value = current.value[watcher.value]
+			}
+			else{
+				value = current.value
+			}
+
+			// data.push([new Date(current.timestamp), value, 0])//0, minute column
+			data.push([new Date(current.timestamp), value])//0, minute column
+		})
+
+		return data
 	}
+	
+	/**
+	* from mixin/chart.vue
+	**/
 }
