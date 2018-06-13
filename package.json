@@ -1,0 +1,19 @@
+{
+  "name": "tabular-data",
+  "version": "0.0.1",
+  "description": "Tabular Data Helpers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colo/node-tabular-data.git"
+  },
+  "author": "Luciano Bueno <glamero@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/colo/node-tabular-data/issues"
+  },
+  "homepage": "https://github.com/colo/node-tabular-data#readme"
+}
