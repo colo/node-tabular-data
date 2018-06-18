@@ -1,3 +1,104 @@
+/**
+* https://gist.github.com/penguinboy/762197
+*/
+var flattenObject = function(ob) {
+
+  return Object.keys(ob).reduce(function(toReturn, k) {
+
+    if (Object.prototype.toString.call(ob[k]) === '[object Date]') {
+      toReturn[k] = ob[k].toString();
+    }
+    else if ((typeof ob[k]) === 'object' && ob[k]) {
+      var flatObject = flattenObject(ob[k]);
+      Object.keys(flatObject).forEach(function(k2) {
+        toReturn[k + '.' + k2] = flatObject[k2];
+      });
+    }
+    else {
+      toReturn[k] = ob[k];
+    }
+
+    return toReturn;
+  }, {});
+}
+
+
+var nested_object_to_tabular = function (current, watcher){
+	watcher = watcher || {value: ''}
+	watcher.value = watcher.value || ''
+
+	let data = []
+	Array.each(current, function(item){
+
+		let tmp_data = {}
+		tmp_data.timestamp = new Date(item.timestamp)
+
+
+		let value = null
+
+		if(watcher.value != ''){
+			value = {}
+
+			if(Array.isArray(watcher.value)){
+
+				let flat = flattenObject(item.value)
+
+				Object.each(flat, function (val, line){
+					// console.log(line)
+					let arr_line = line.split('.')
+					let found = true
+					/**
+					* compare each watcher.value against each line "item", if all match => found = true
+					**/
+					Array.each(watcher.value, function(watcher_value, index){
+						if(watcher_value instanceof RegExp){
+							if(watcher_value.test(arr_line[index]) == false)
+								found = false
+						}
+						else{
+							if(arr_line[index] != watcher_value)
+								found = false
+						}
+					})
+
+					if(found == true){
+
+						let arr_line = line.split('.')
+						/**
+						* recurse over item.value (updating val reference until last "key"),
+						* to get the deep value of the full key
+						**/
+						let val = item.value
+						Array.each(arr_line, function(key){
+							val = val[key]
+						})
+						value[line] = val
+					}
+
+				})
+
+			}
+			else{
+				value[watcher.value] = item.value[watcher.value]
+			}
+
+
+		}
+		else{
+			value = item.value
+		}
+
+		tmp_data.value = value
+
+		data.push(tmp_data)
+	})
+
+	// console.log('nested_object_to_tabular')
+	// console.log(data)
+
+	return data
+}
+
 var array_to_tabular = function (current, watcher){
 	watcher = watcher || {value: ''}
 	watcher.value = watcher.value || ''
@@ -8,7 +109,7 @@ var array_to_tabular = function (current, watcher){
 		tmp_data.push(new Date(item.timestamp))
 
 		let value = null
-		if(watcher.value != ''){
+		if(watcher.value != '' && !Array.isArray(watcher.value)){
 			value = item.value[watcher.value]
 		}
 		else{
@@ -99,7 +200,7 @@ var nested_array_to_tabular = function (current, watcher, name){
 
 	return val_current
 }
-	
+
 module.exports = {
 	/**
 	* from mixins/dashboard.vue
@@ -121,7 +222,7 @@ module.exports = {
 	/**
 	* from mixins/dashboard.vue
 	**/
-	
+
 	/**
 	* from mixin/chart.vue
 	**/
@@ -137,8 +238,43 @@ module.exports = {
 		else{
 			let type_value = null
 			let value_length = 0
-			if(watcher.value != ''){
-				type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher.value]) ? current[0].value[0][watcher.value] : current[0].value[watcher.value]
+			let watcher_value = watcher.value
+
+			if(watcher.value && watcher.value != ''){
+
+
+				if(Array.isArray(watcher.value)){
+					if(!(watcher.value[0] instanceof RegExp)){
+						// Object.each(stat[0].value, function(val, key){
+						// 	/**
+						// 	* watch out to have a good RegExp, or may keep matching keeps 'til last one
+						// 	**/
+						// 	if(chart.watch.value[0].test(key))
+						// 		obj = stat[0].value[key]
+						// })
+						watcher_value = watcher.value[0]
+						type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher_value]) ? current[0].value[0][watcher_value] : current[0].value[watcher_value]
+					}
+					else{//RegExp
+						if(Array.isArray(current[0].value)){
+							Object.each(current[0].value[0], function(val, key){
+								if(watcher.value[0].test(key))
+									type_value = current[0].value[0][key]
+							})
+						}
+						else{
+							Object.each(current[0].value, function(val, key){
+								if(watcher.value[0].test(key))
+									type_value = current[0].value[key]
+							})
+
+
+						}
+
+					}
+
+				}
+
 			}
 			else{
 				type_value = current[0].value
@@ -162,7 +298,17 @@ module.exports = {
 
 				data = array_to_tabular(current, watcher)
 			}
-			else if(isNaN(type_value) || watcher.value != ''){
+			else if(
+				(isNaN(type_value) || watcher.value != '')
+				&& !(
+					!Array.isArray(current[0].value)
+					&&
+					(
+						watcher_value
+						&& isNaN(current[0].value[watcher_value])
+					)
+				)
+			){
 
 				if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
 					current = nested_array_to_tabular(current, watcher, name)
@@ -189,6 +335,36 @@ module.exports = {
 				data = array_to_tabular(current, watcher)
 
 			}
+			else if(
+				(isNaN(type_value) || watcher_value != '')
+				&& (
+					!Array.isArray(current[0].value)
+					&&
+					(
+						watcher_value
+						&& isNaN(current[0].value[watcher_value])
+					)
+				)
+			){//like os.minute.cpus
+
+				current = nested_object_to_tabular(current, watcher, name)
+
+				if(watcher.exclude){
+					Array.each(current, function(data){
+						Object.each(data.value, function(value, key){
+							if(watcher.exclude.test(key) == true)
+								delete data.value[key]
+						})
+					})
+				}
+
+				if(typeOf(watcher.transform) == 'function'){
+					current = watcher.transform(current, this, chart)
+				}
+
+				data = array_to_tabular(current, watcher)
+
+			}
 			else{//single value, ex: uptime
 
 				if(typeOf(watcher.transform) == 'function'){
@@ -206,13 +382,13 @@ module.exports = {
 
 
 	},
-	
+
 	array_to_tabular: array_to_tabular,
-	
+
 	number_to_tabular: number_to_tabular,
-	
+
 	nested_array_to_tabular: nested_array_to_tabular,
-	
+
 	/**
 	* from mixin/chart.vue
 	**/
