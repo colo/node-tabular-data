@@ -399,9 +399,9 @@ module.exports = {
 				&& (Array.isArray(current[0].value) && current[0].value[0][watcher_value])
 			){
 
-
-				current = nested_array_to_tabular(current, watcher, name)
-
+				if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
+					current = nested_array_to_tabular(current, watcher, name)
+				}
 
 				// else{//blockdevices.sdX
 				if(watcher.exclude){
@@ -426,15 +426,14 @@ module.exports = {
 			}
 			else if(
 				(isNaN(type_value) || watcher_value != '')
-				&& Array.isArray(watcher.value)
-				//&& (
-					//!Array.isArray(current[0].value)
-					//&&
-					//(
-						//watcher_value
-						//&& isNaN(current[0].value[watcher_value])
-					//)
-				//)
+				&& (
+					!Array.isArray(current[0].value)
+					&&
+					(
+						watcher_value
+						&& isNaN(current[0].value[watcher_value])
+					)
+				)
 			){//like os.minute.cpus
 
 				current = nested_object_to_tabular(current, watcher, name)
