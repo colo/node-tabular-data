@@ -426,14 +426,15 @@ module.exports = {
 			}
 			else if(
 				(isNaN(type_value) || watcher_value != '')
-				&& (
-					!Array.isArray(current[0].value)
-					&&
-					(
-						watcher_value
-						&& isNaN(current[0].value[watcher_value])
-					)
-				)
+				&& Array.isArray(watcher.value)
+				//&& (
+					//!Array.isArray(current[0].value)
+					//&&
+					//(
+						//watcher_value
+						//&& isNaN(current[0].value[watcher_value])
+					//)
+				//)
 			){//like os.minute.cpus
 
 				current = nested_object_to_tabular(current, watcher, name)
