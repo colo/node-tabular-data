@@ -391,8 +391,9 @@ module.exports = {
 	number_to_tabular: number_to_tabular,
 
 	nested_array_to_tabular: nested_array_to_tabular,
-
+	
 	/**
 	* from mixin/chart.vue
 	**/
+	flattenObject: flattenObject
 }
