@@ -149,7 +149,7 @@ var number_to_tabular = function(current, watcher){
 	let data = []
 	Array.each(current, function(current){
 		let value = null
-		if(watcher.value != ''){
+		if(watcher.value != '' && !Array.isArray(watcher.value)){
 			value = current.value[watcher.value]
 		}
 		else{
@@ -230,7 +230,7 @@ module.exports = {
 	 * ex-generic_data_watcher->data_to_tabular
 	 * */
 	data_to_tabular: function(current, chart, name, updater_callback){
-		let watcher = chart.watch || {}
+    let watcher = chart.watch || {}
 
 		if(watcher.managed == true){
 			watcher.transform(current, this, chart)
@@ -241,7 +241,6 @@ module.exports = {
 			let watcher_value = watcher.value
 
 			if(watcher.value && watcher.value != ''){
-
 
 				if(Array.isArray(watcher.value)){
 					if(!(watcher.value[0] instanceof RegExp)){
@@ -274,6 +273,9 @@ module.exports = {
 					}
 
 				}
+        else{
+          type_value = (Array.isArray(current[0].value) && current[0].value[0][watcher_value]) ? current[0].value[0][watcher_value] : current[0].value[watcher_value]
+        }
 
 			}
 			else{
@@ -366,6 +368,7 @@ module.exports = {
 
 			}
 			else{//single value, ex: uptime
+        // console.log('data_to_tabular', name, type_value)
 
 				if(typeOf(watcher.transform) == 'function'){
 					current = watcher.transform(current, this, chart)
