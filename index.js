@@ -233,7 +233,7 @@ module.exports = {
     let watcher = chart.watch || {}
 
 		if(watcher.managed == true){
-			watcher.transform(current, this, chart)
+			watcher.transform(current, this, chart, updater_callback)
 		}
 		else{
 			let type_value = null
