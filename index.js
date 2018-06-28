@@ -284,7 +284,8 @@ module.exports = {
 
 			let data = []
 
-			if(Array.isArray(type_value)){//multiple values, ex: loadavg
+      if(Array.isArray(type_value)){//multiple values, ex: loadavg
+
 				if(watcher.exclude){
 					Array.each(current, function(data){
 						Object.each(data.value, function(value, key){
@@ -312,11 +313,11 @@ module.exports = {
 				)
 			){
 
-				if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
+        if(Array.isArray(current[0].value) && current[0].value[0][watcher.value]){//cpus
 					current = nested_array_to_tabular(current, watcher, name)
 				}
 
-				// else{//blockdevices.sdX
+        // else{//blockdevices.sdX
 				if(watcher.exclude){
 					Array.each(current, function(data){
 						Object.each(data.value, function(value, key){
@@ -349,16 +350,29 @@ module.exports = {
 				)
 			){//like os.minute.cpus
 
+
+
 				current = nested_object_to_tabular(current, watcher, name)
+
 
 				if(watcher.exclude){
 					Array.each(current, function(data){
-						Object.each(data.value, function(value, key){
+            let obj = undefined
+            if(data.value[watcher_value]){
+              obj = data.value[watcher_value]
+            }
+            else{
+              obj = data.value
+            }
+
+						Object.each(obj, function(value, key){
 							if(watcher.exclude.test(key) == true)
-								delete data.value[key]
+								delete obj[key]
 						})
 					})
 				}
+
+
 
 				if(typeOf(watcher.transform) == 'function'){
 					current = watcher.transform(current, this, chart)
@@ -391,7 +405,7 @@ module.exports = {
 	number_to_tabular: number_to_tabular,
 
 	nested_array_to_tabular: nested_array_to_tabular,
-	
+
 	/**
 	* from mixin/chart.vue
 	**/
