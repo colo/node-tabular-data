@@ -31,7 +31,8 @@ var nested_object_to_tabular = function (current, watcher){
 	Array.each(current, function(item){
 
 		let tmp_data = {}
-		tmp_data.timestamp = new Date(item.timestamp)
+		//tmp_data.timestamp = new Date(item.timestamp)
+		tmp_data.timestamp = item.timestamp *1
 
 
 		let value = null
@@ -106,7 +107,8 @@ var array_to_tabular = function (current, watcher){
 	let data = []
 	Array.each(current, function(item){
 		let tmp_data = []
-		tmp_data.push(new Date(item.timestamp))
+		//tmp_data.push(new Date(item.timestamp))
+		tmp_data.push(item.timestamp * 1)
 
 		let value = null
 		if(watcher.value != '' && !Array.isArray(watcher.value)){
@@ -156,8 +158,9 @@ var number_to_tabular = function(current, watcher){
 			value = current.value
 		}
 
-		// data.push([new Date(current.timestamp), value, 0])//0, minute column
-		data.push([new Date(current.timestamp), value])//0, minute column
+		
+		//data.push([new Date(current.timestamp), value])//0, minute column
+		data.push([current.timestamp * 1, value])//0, minute column
 	})
 
 	return data
