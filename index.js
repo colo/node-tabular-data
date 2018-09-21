@@ -158,7 +158,7 @@ var number_to_tabular = function(current, watcher){
 			value = current.value
 		}
 
-		
+
 		//data.push([new Date(current.timestamp), value])//0, minute column
 		data.push([current.timestamp * 1, value])//0, minute column
 	})
@@ -239,7 +239,7 @@ module.exports = {
 			watcher.transform(current, this, chart, updater_callback)
 		}
 		else{
-			let type_value = null
+			let type_value = undefined
 			let value_length = 0
 			let watcher_value = watcher.value
 
@@ -281,13 +281,13 @@ module.exports = {
         }
 
 			}
-			else{
+			else if(current[0] && current[0].value){
 				type_value = current[0].value
 			}
 
 			let data = []
 
-      if(Array.isArray(type_value)){//multiple values, ex: loadavg
+      if(type_value && Array.isArray(type_value)){//multiple values, ex: loadavg
 
 				if(watcher.exclude){
 					Array.each(current, function(data){
@@ -305,7 +305,8 @@ module.exports = {
 				data = array_to_tabular(current, watcher)
 			}
 			else if(
-				(isNaN(type_value) || watcher.value != '')
+        type_value
+				&& (isNaN(type_value) || watcher.value != '')
 				&& !(
 					!Array.isArray(current[0].value)
 					&&
@@ -342,7 +343,8 @@ module.exports = {
 
 			}
 			else if(
-				(isNaN(type_value) || watcher_value != '')
+        type_value
+				&& (isNaN(type_value) || watcher_value != '')
 				&& (
 					!Array.isArray(current[0].value)
 					&&
@@ -384,7 +386,7 @@ module.exports = {
 				data = array_to_tabular(current, watcher)
 
 			}
-			else{//single value, ex: uptime
+			else if(type_value){//single value, ex: uptime
         // console.log('data_to_tabular', name, type_value)
 
 				if(typeOf(watcher.transform) == 'function'){
