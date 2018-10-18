@@ -28,7 +28,9 @@ var nested_object_to_tabular = function (current, watcher){
 	watcher.value = watcher.value || ''
 
 	let data = []
-	Array.each(current, function(item){
+	// Array.each(current, function(item){
+  for(let index = 0; index < current.length; index++){
+    let item = current[index]
 
 		let tmp_data = {}
 		//tmp_data.timestamp = new Date(item.timestamp)
@@ -92,12 +94,16 @@ var nested_object_to_tabular = function (current, watcher){
 		tmp_data.value = value
 
 		data.push(tmp_data)
-	})
+
+    if(index == current.length -1)
+      return data
+  }
+	// })
 
 	// console.log('nested_object_to_tabular')
 	// console.log(data)
 
-	return data
+	// return data
 }
 
 var array_to_tabular = function (current, watcher){
@@ -105,7 +111,10 @@ var array_to_tabular = function (current, watcher){
 	watcher.value = watcher.value || ''
 
 	let data = []
-	Array.each(current, function(item){
+	// Array.each(current, function(item){
+  for(let index = 0; index < current.length; index++){
+    let item = current[index]
+
 		let tmp_data = []
 		//tmp_data.push(new Date(item.timestamp))
 		tmp_data.push(item.timestamp * 1)
@@ -142,28 +151,39 @@ var array_to_tabular = function (current, watcher){
 		// tmp_data.push(0)//add minute column
 
 		data.push(tmp_data)
-	})
 
-	return data
+    if(index == current.length -1)
+      return data
+  }
+	// })
+
+	// return data
 }
 
 var number_to_tabular = function(current, watcher){
 	let data = []
-	Array.each(current, function(current){
+	// Array.each(current, function(current){
+  for(let index = 0; index < current.length; index++){
+    let item = current[index]
+
 		let value = null
 		if(watcher.value != '' && !Array.isArray(watcher.value)){
-			value = current.value[watcher.value]
+			value = item.value[watcher.value]
 		}
 		else{
-			value = current.value
+			value = item.value
 		}
 
 
 		//data.push([new Date(current.timestamp), value])//0, minute column
-		data.push([current.timestamp * 1, value])//0, minute column
-	})
+		data.push([item.timestamp * 1, value])//0, minute column
 
-	return data
+    if(index == current.length -1)
+      return data
+  }
+	// })
+
+	// return data
 }
 
 var nested_array_to_tabular = function (current, watcher, name){
@@ -172,7 +192,9 @@ var nested_array_to_tabular = function (current, watcher, name){
 	////////////////console.log('generic_data_watcher isNanN', name, val, index)
 
 	let val_current = []
-	Array.each(current, function(item){
+	// Array.each(current, function(item){
+  for(let index = 0; index < current.length; index++){
+    let item = current[index]
 		// ////////////////console.log('CPU item', item)
 
 		let value = {}
@@ -197,11 +219,14 @@ var nested_array_to_tabular = function (current, watcher, name){
 
 		val_current.push({timestamp: item.timestamp, value: value})
 
-	}.bind(this))
+    if(index == current.length -1)
+      return val_current
+  }
+	// }.bind(this))
 
 	// ////////////////console.log('CPU new current', val_current)
 
-	return val_current
+	// return val_current
 }
 
 module.exports = {
@@ -298,11 +323,24 @@ module.exports = {
 					})
 				}
 
-				if(typeOf(watcher.transform) == 'function'){
-					current = watcher.transform(current, this, chart)
-				}
+        let __process_array_to_tabular = function(current){
+          let data = array_to_tabular(current, watcher)
+          updater_callback(name, data)
+        }
 
-				data = array_to_tabular(current, watcher)
+				if(typeOf(watcher.transform) == 'function'){
+					// current = watcher.transform(current, this, chart)
+          let data = watcher.transform(current, this, chart, __process_array_to_tabular)
+          if(data)
+            __process_array_to_tabular(data)
+
+				}
+        else{
+          // data = array_to_tabular(current, watcher)
+          __process_array_to_tabular(current)
+        }
+
+
 			}
 			else if(
         type_value
@@ -331,15 +369,28 @@ module.exports = {
 					})
 				}
 
+        let __process_array_to_tabular = function(current){
+          if(!Array.isArray(current))
+            current = [current]
+
+          let data = array_to_tabular(current, watcher)
+          updater_callback(name, data)
+        }
 
 				if(typeOf(watcher.transform) == 'function'){
-					current = watcher.transform(current, this, chart)
+					// current = watcher.transform(current, this, chart)
+          let data = watcher.transform(current, this, chart, __process_array_to_tabular)
+          if(data)
+            __process_array_to_tabular(data)
 				}
+        else{
+          __process_array_to_tabular(current)
+        }
 
-				if(!Array.isArray(current))
-					current = [current]
-
-				data = array_to_tabular(current, watcher)
+				// if(!Array.isArray(current))
+				// 	current = [current]
+        //
+				// data = array_to_tabular(current, watcher)
 
 			}
 			else if(
@@ -378,27 +429,47 @@ module.exports = {
 				}
 
 
+        let __process_array_to_tabular = function(current){
+          let data = array_to_tabular(current, watcher)
+          updater_callback(name, data)
+        }
 
 				if(typeOf(watcher.transform) == 'function'){
-					current = watcher.transform(current, this, chart)
+					let data = watcher.transform(current, this, chart, __process_array_to_tabular)
+          if(data)
+            __process_array_to_tabular(data)
 				}
+        else{
+          __process_array_to_tabular(current)
+        }
 
-				data = array_to_tabular(current, watcher)
+				// data = array_to_tabular(current, watcher)
 
 			}
 			else if(type_value){//single value, ex: uptime
         // console.log('data_to_tabular', name, type_value)
 
-				if(typeOf(watcher.transform) == 'function'){
-					current = watcher.transform(current, this, chart)
-				}
+        let __process_number_to_tabular = function(current){
+          let data = number_to_tabular (current, watcher)
+          updater_callback(name, data)
+        }
 
-				data = number_to_tabular (current, watcher)
+
+				if(typeOf(watcher.transform) == 'function'){
+					let data = watcher.transform(current, this, chart, __process_number_to_tabular)
+          if(data)
+            __process_array_to_tabular(data)
+				}
+        else{
+          __process_number_to_tabular(current)
+        }
+
+				// data = number_to_tabular (current, watcher)
 
 
 			}
 
-			updater_callback(name, data)
+			// updater_callback(name, data)
 
 		}
 
