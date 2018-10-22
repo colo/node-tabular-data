@@ -458,7 +458,7 @@ module.exports = {
 				if(typeOf(watcher.transform) == 'function'){
 					let data = watcher.transform(current, this, chart, __process_number_to_tabular)
           if(data)
-            __process_array_to_tabular(data)
+            __process_number_to_tabular(data)
 				}
         else{
           __process_number_to_tabular(current)
