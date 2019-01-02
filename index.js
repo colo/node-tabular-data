@@ -306,7 +306,7 @@ module.exports = {
         }
 
 			}
-			else if(current[0] && !isNaN(current[0].value)){
+			else if(current[0] && (current[0].value || !isNaN(current[0].value))){
 				type_value = current[0].value
 			}
 
@@ -446,7 +446,7 @@ module.exports = {
 				// data = array_to_tabular(current, watcher)
 
 			}
-			else if(!isNaN(type_value)){//single value, ex: uptime
+			else if(type_value || !isNaN(type_value)){//single value, ex: uptime
         // console.log('data_to_tabular', name, type_value)
 
         let __process_number_to_tabular = function(current){
