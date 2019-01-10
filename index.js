@@ -120,6 +120,7 @@ var array_to_tabular = function (current, watcher){
 		tmp_data.push(item.timestamp * 1)
 
 		let value = null
+    // console.log('ITEM', item)
 		if(watcher.value != '' && !Array.isArray(watcher.value)){
 			value = item.value[watcher.value]
 		}
@@ -312,6 +313,9 @@ module.exports = {
 
 			let data = []
 
+      // if(watcher && watcher.transform)
+      //   console.log('WATCHER', typeof watcher.transform)
+
       if(type_value && Array.isArray(type_value)){//multiple values, ex: loadavg
 
 				if(watcher.exclude){
@@ -328,10 +332,11 @@ module.exports = {
           updater_callback(name, data)
         }
 
+
 				if(typeOf(watcher.transform) == 'function'){
 					// current = watcher.transform(current, this, chart)
           let data = watcher.transform(current, this, chart, __process_array_to_tabular)
-          if(data)
+          if(data && ! /function/.test(data))
             __process_array_to_tabular(data)
 
 				}
@@ -373,6 +378,8 @@ module.exports = {
           if(!Array.isArray(current))
             current = [current]
 
+          // console.log('current, watcher', current, watcher)
+
           let data = array_to_tabular(current, watcher)
           updater_callback(name, data)
         }
@@ -380,7 +387,9 @@ module.exports = {
 				if(typeOf(watcher.transform) == 'function'){
 					// current = watcher.transform(current, this, chart)
           let data = watcher.transform(current, this, chart, __process_array_to_tabular)
-          if(data)
+          // console.log('DATA', data, typeof data)
+
+          if(data && ! /function/.test(data))
             __process_array_to_tabular(data)
 				}
         else{
@@ -436,7 +445,8 @@ module.exports = {
 
 				if(typeOf(watcher.transform) == 'function'){
 					let data = watcher.transform(current, this, chart, __process_array_to_tabular)
-          if(data)
+
+          if(data && ! /function/.test(data))
             __process_array_to_tabular(data)
 				}
         else{
