@@ -336,7 +336,8 @@ module.exports = {
 				if(typeOf(watcher.transform) == 'function'){
 					// current = watcher.transform(current, this, chart)
           let data = watcher.transform(current, this, chart, __process_array_to_tabular)
-          if(data && ! /function/.test(data))
+          // if(data && ! /function/.test(data))
+          if(data)
             __process_array_to_tabular(data)
 
 				}
@@ -389,7 +390,8 @@ module.exports = {
           let data = watcher.transform(current, this, chart, __process_array_to_tabular)
           // console.log('DATA', data, typeof data)
 
-          if(data && ! /function/.test(data))
+          // if(data && ! /function/.test(data))
+          if(data)
             __process_array_to_tabular(data)
 				}
         else{
@@ -446,7 +448,8 @@ module.exports = {
 				if(typeOf(watcher.transform) == 'function'){
 					let data = watcher.transform(current, this, chart, __process_array_to_tabular)
 
-          if(data && ! /function/.test(data))
+          // if(data && ! /function/.test(data))
+          if(data)
             __process_array_to_tabular(data)
 				}
         else{
