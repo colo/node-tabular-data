@@ -1,3 +1,6 @@
+let debug = require('debug')('node-tabular-data'),
+    debug_internals = require('debug')('node-tabular-data:Internals');
+
 /**
 * https://gist.github.com/penguinboy/762197
 */
@@ -251,6 +254,239 @@ module.exports = {
 	/**
 	* from mixins/dashboard.vue
 	**/
+
+  data_to_stat: function(current, chart, name, updater_callback){
+    let watcher = chart.watch || {}
+    
+		if(watcher.managed == true){
+			watcher.transform(current, this, chart, updater_callback)
+		}
+		else{
+			let type_value = undefined
+			let value_length = 0
+			let watcher_value = watcher.value
+
+			if(watcher.value && watcher.value != ''){
+
+				if(Array.isArray(watcher.value)){
+					if(!(watcher.value[0] instanceof RegExp)){
+						// Object.each(stat[0].value, function(val, key){
+						// 	/**
+						// 	* watch out to have a good RegExp, or may keep matching keeps 'til last one
+						// 	**/
+						// 	if(chart.watch.value[0].test(key))
+						// 		obj = stat[0].value[key]
+						// })
+						watcher_value = watcher.value[0]
+						type_value = (Array.isArray(current[0].data) && current[0].data[0][watcher_value]) ? current[0].value[0][watcher_value] : current[0].data[watcher_value]
+					}
+					else{//RegExp
+						if(Array.isArray(current[0].data)){
+							Object.each(current[0].data[0], function(val, key){
+								if(watcher.value[0].test(key))
+									type_value = current[0].data[0][key]
+							})
+						}
+						else{
+							Object.each(current[0].data, function(val, key){
+								if(watcher.value[0].test(key))
+									type_value = current[0].data[key]
+							})
+
+
+						}
+
+					}
+
+				}
+        else{
+          type_value = (Array.isArray(current[0].data) && current[0].data[0][watcher_value]) ? current[0].data[0][watcher_value] : current[0].data[watcher_value]
+        }
+
+			}
+			else if(current[0] && (current[0].data || !isNaN(current[0].data))){
+				type_value = current[0].data
+			}
+
+			let data = []
+
+      // if(watcher && watcher.transform)
+      //   console.log('WATCHER', typeof watcher.transform)
+
+
+      // if(type_value && Array.isArray(type_value)){//multiple values, ex: loadavg
+
+        debug_internals('data_to_stat',type_value )
+
+				if(watcher.exclude){
+					Array.each(current, function(data){
+						Object.each(data.data, function(value, key){
+							if(watcher.exclude.test(key) == true)
+								delete data.data[key]
+						})
+					})
+				}
+
+        // let __process_array_to_tabular = function(current){
+        //   let data = array_to_tabular(current, watcher)
+        //   updater_callback(name, data)
+        // }
+
+
+				if(typeOf(watcher.transform) == 'function'){
+					// current = watcher.transform(current, this, chart)
+          let data = watcher.transform(current, this, chart, updater_callback)
+          // // if(data && ! /function/.test(data))
+          // if(data)
+          //   __process_array_to_tabular(data)
+
+				}
+        else{
+          // __process_array_to_tabular(current)
+        }
+
+
+		// 	}
+		// 	else if(
+    //     type_value
+		// 		&& (isNaN(type_value) || watcher.value != '')
+		// 		&& !(
+		// 			!Array.isArray(current[0].data)
+		// 			&&
+		// 			(
+		// 				watcher_value
+		// 				&& isNaN(current[0].data[watcher_value])
+		// 			)
+		// 		)
+		// 	){
+    //
+    //     if(Array.isArray(current[0].data) && current[0].data[0][watcher.value]){//cpus
+		// 			current = nested_array_to_tabular(current, watcher, name)
+		// 		}
+    //
+    //     // else{//blockdevices.sdX
+		// 		if(watcher.exclude){
+		// 			Array.each(current, function(data){
+		// 				Object.each(data.data, function(value, key){
+		// 					if(watcher.exclude.test(key) == true)
+		// 						delete data.data[key]
+		// 				})
+		// 			})
+		// 		}
+    //
+    //     let __process_array_to_tabular = function(current){
+    //       if(!Array.isArray(current))
+    //         current = [current]
+    //
+    //       // console.log('current, watcher', current, watcher)
+    //
+    //       let data = array_to_tabular(current, watcher)
+    //       updater_callback(name, data)
+    //     }
+    //
+		// 		if(typeOf(watcher.transform) == 'function'){
+		// 			// current = watcher.transform(current, this, chart)
+    //       let data = watcher.transform(current, this, chart, __process_array_to_tabular)
+    //       // console.log('DATA', data, typeof data)
+    //
+    //       // if(data && ! /function/.test(data))
+    //       if(data)
+    //         __process_array_to_tabular(data)
+		// 		}
+    //     else{
+    //       __process_array_to_tabular(current)
+    //     }
+    //
+		// 		// if(!Array.isArray(current))
+		// 		// 	current = [current]
+    //     //
+		// 		// data = array_to_tabular(current, watcher)
+    //
+		// 	}
+		// 	else if(
+    //     type_value
+		// 		&& (isNaN(type_value) || watcher_value != '')
+		// 		&& (
+		// 			!Array.isArray(current[0].data)
+		// 			&&
+		// 			(
+		// 				watcher_value
+		// 				&& isNaN(current[0].data[watcher_value])
+		// 			)
+		// 		)
+		// 	){//like os.minute.cpus
+    //
+    //
+    //
+		// 		current = nested_object_to_tabular(current, watcher, name)
+    //
+    //
+		// 		if(watcher.exclude){
+		// 			Array.each(current, function(data){
+    //         let obj = undefined
+    //         if(data.data[watcher_value]){
+    //           obj = data.data[watcher_value]
+    //         }
+    //         else{
+    //           obj = data.data
+    //         }
+    //
+		// 				Object.each(obj, function(value, key){
+		// 					if(watcher.exclude.test(key) == true)
+		// 						delete obj[key]
+		// 				})
+		// 			})
+		// 		}
+    //
+    //
+    //     let __process_array_to_tabular = function(current){
+    //       let data = array_to_tabular(current, watcher)
+    //       updater_callback(name, data)
+    //     }
+    //
+		// 		if(typeOf(watcher.transform) == 'function'){
+		// 			let data = watcher.transform(current, this, chart, __process_array_to_tabular)
+    //
+    //       // if(data && ! /function/.test(data))
+    //       if(data)
+    //         __process_array_to_tabular(data)
+		// 		}
+    //     else{
+    //       __process_array_to_tabular(current)
+    //     }
+    //
+		// 		// data = array_to_tabular(current, watcher)
+    //
+		// 	}
+		// 	else if(type_value || !isNaN(type_value)){//single value, ex: uptime
+    //     // console.log('data_to_tabular', name, type_value)
+    //
+    //     let __process_number_to_tabular = function(current){
+    //       let data = number_to_tabular (current, watcher)
+    //       updater_callback(name, data)
+    //     }
+    //
+    //
+		// 		if(typeOf(watcher.transform) == 'function'){
+		// 			let data = watcher.transform(current, this, chart, __process_number_to_tabular)
+    //       if(data)
+    //         __process_number_to_tabular(data)
+		// 		}
+    //     else{
+    //       __process_number_to_tabular(current)
+    //     }
+    //
+		// 		// data = number_to_tabular (current, watcher)
+    //
+    //
+		// 	}
+    //
+		// 	// updater_callback(name, data)
+    //
+		}
+
+
+	},
 
 	/**
 	* from mixin/chart.vue
