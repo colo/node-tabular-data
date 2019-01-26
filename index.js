@@ -257,7 +257,7 @@ module.exports = {
 
   data_to_stat: function(current, chart, name, updater_callback){
     let watcher = chart.watch || {}
-    
+
 		if(watcher.managed == true){
 			watcher.transform(current, this, chart, updater_callback)
 		}
@@ -335,7 +335,7 @@ module.exports = {
 
 				if(typeOf(watcher.transform) == 'function'){
 					// current = watcher.transform(current, this, chart)
-          let data = watcher.transform(current, this, chart, updater_callback)
+          let data = watcher.transform(current, this, chart, data => updater_callback(name, data))
           // // if(data && ! /function/.test(data))
           // if(data)
           //   __process_array_to_tabular(data)
