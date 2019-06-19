@@ -115,6 +115,8 @@ var array_to_tabular = function (current, watcher){
 
 	let data = []
 	// Array.each(current, function(item){
+
+
   for(let index = 0; index < current.length; index++){
     let item = current[index]
 
@@ -135,12 +137,15 @@ var array_to_tabular = function (current, watcher){
 		//   tmp_data.push(real_value)
 		// })
 		if(Array.isArray(value)){
-			Array.each(value, function(real_value){
+      Array.each(value, function(real_value){
 				tmp_data.push(real_value)
 			})
 		}
 		else if(!isNaN(value)){//mounts[mount_point].value.percentage
-			tmp_data.push(value * 1)
+      tmp_data.push(value * 1)
+		}
+    else if(typeof value === 'string'){//mounts[mount_point].value.percentage
+      tmp_data.push(value)
 		}
 		else if(!value){//mounts[mount_point].value.percentage
 			//this is an error?
@@ -552,6 +557,7 @@ module.exports = {
       // if(watcher && watcher.transform)
       //   console.log('WATCHER', typeof watcher.transform)
 
+
       if(type_value && Array.isArray(type_value)){//multiple values, ex: loadavg
 
 				if(watcher.exclude){
@@ -618,6 +624,7 @@ module.exports = {
           // console.log('current, watcher', current, watcher)
 
           let data = array_to_tabular(current, watcher)
+          debug_internals('data_to_tabular ', type_value, typeOf(type_value), current[0].value, data)
           updater_callback(name, data)
         }
 
@@ -633,6 +640,7 @@ module.exports = {
         else{
           __process_array_to_tabular(current)
         }
+
 
 				// if(!Array.isArray(current))
 				// 	current = [current]
