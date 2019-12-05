@@ -176,7 +176,7 @@ var number_to_tabular = function(current, watcher){
     let item = current[index]
 
 		let value = null
-		if(watcher.value != '' && !Array.isArray(watcher.value)){
+		if(watcher.value && watcher.value != '' && !Array.isArray(watcher.value)){
 			value = item.value[watcher.value]
 		}
 		else{
