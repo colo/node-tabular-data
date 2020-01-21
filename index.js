@@ -1404,6 +1404,8 @@ const deep_object_merge = function(obj1, obj2){
 let __traversed_path_require = {}
 
 const traverse_path_require = function(type, require_path, path, stat, original_path){
+
+
   original_path = original_path || path
   path = path.replace(/_/g, '.')
   original_path = original_path.replace(/_/g, '.')
@@ -1412,7 +1414,7 @@ const traverse_path_require = function(type, require_path, path, stat, original_
   if(__traversed_path_require[require_path+'/'+type+'/'+path] && __traversed_path_require[require_path+'/'+type+'/'+path] !== undefined){
     return __traversed_path_require[require_path+'/'+type+'/'+path]
   }
-  else if(__traversed_path_require[require_path+'/'+type+'/'+path] === undefined){
+  else if(__traversed_path_require[require_path+'/'+type+'/'+path] && __traversed_path_require[require_path+'/'+type+'/'+path] === undefined){
     if(path.indexOf('.') > -1){
       let pre_path = path.substring(0, path.lastIndexOf('.'))
       if(__traversed_path_require[require_path+'/'+type+'/'+pre_path] !== undefined){
