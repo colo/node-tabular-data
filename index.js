@@ -574,7 +574,7 @@ const data_to_tabular = function(current, chart, name, updater_callback){
 **/
 
 let cache = undefined
-let full = false
+// let full = false
 let require_path = ''
 let ID = undefined
 
@@ -698,14 +698,14 @@ let ID = undefined
 //   }
 // }
 
-const data_formater = function(data, format, cb){
-  // if(typeof full === 'function'){
-  //   cb = full
-  //   full = false
-  // }
-  // else {
-  //   full = (full === true) ? full : false
-  // }
+const data_formater = function(data, format, full, cb){
+  if(typeof full === 'function'){
+    cb = full
+    full = false
+  }
+  else {
+    full = (full === true) ? full : false
+  }
 
   debug('data_formater FUNC %s %o %s', format, data, formater.require_path)
   // process.exit(1)
@@ -767,12 +767,12 @@ const data_formater = function(data, format, cb){
         // debug('RESPONSES %s %o', key, value)
         // process.exit(1)
 
-        key = (formater.full === false && value[0] && value[0].metadata && value[0].metadata.path) ? value[0].metadata.path : key
+        key = (full === false && value[0] && value[0].metadata && value[0].metadata.path) ? value[0].metadata.path : key
 
         let stat = {'data': undefined}
         stat['data'] = value
 
-        if(formater.full === true){//includes metadata
+        if(full === true){//includes metadata
           transformed[key] = {data: undefined, metadata: []}
           value.each(function(val){
             transformed[key]['metadata'].push(val.metadata)
@@ -783,7 +783,7 @@ const data_formater = function(data, format, cb){
 
         __transform_data('stat', key, stat, formater.ID, formater.require_path, function(value){
           // transformed[key] = (value && value.stat) ? value.stat : undefined
-          if(formater.full === true){
+          if(full === true){
             transformed[key].data = (value && value.stat && value.stat.data) ? value.stat.data : undefined
           }
           else{
@@ -809,7 +809,7 @@ const data_formater = function(data, format, cb){
 
           eachOf(data, function (value, key, callback) {
 
-            if(formater.full === true){
+            if(full === true){
               transformed[key] = {data: undefined, metadata: data[key].metadata}
               value = value.data
             }
@@ -825,7 +825,7 @@ const data_formater = function(data, format, cb){
               __transform_data('tabular', key, value, formater.ID, formater.require_path, function(value){
                 debug_internals(': __transform_data tabular -> %o', value) //result
                 // process.exit(1)
-                if(formater.full === true){
+                if(full === true){
                   transformed[key].data = value
                 }
                 else{
@@ -864,8 +864,9 @@ const data_formater = function(data, format, cb){
 }
 
 const __transform_data = function(type, data_path, data, cache_key, require_path, cb){
-  debug_internals('__transform_data', type, data_path, data, require_path)
+  debug_internals('__transform_data', type, data_path, require_path)
   // process.exit(1)
+
   let convert = (type == 'stat') ? data_to_stat : data_to_tabular
 
   let transformed = {}
@@ -1468,7 +1469,7 @@ const __transform_name = function(name){
 }
 
 const formater = module.exports = data_formater
-formater.full = full
+// formater.full = full
 formater.require_path = require_path
 formater.cache = cache
 formater.ID = ID
